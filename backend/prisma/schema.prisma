@@ -1,0 +1,124 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model
+model User {
+  id         Int      @id @default(autoincrement())
+  email      String   @unique
+  name       String?
+  picture    String?
+  googleId   String?  @unique
+  role       String   @default("user")
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("users")
+}
+
+// User sessions model
+model UserSession {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  token        String   @unique
+  isActive     Boolean  @default(true)
+  userAgent    String?
+  ipAddress    String?
+  expiresAt    DateTime
+  lastActiveAt DateTime @default(now())
+  createdAt    DateTime @default(now())
+
+  @@map("user_sessions")
+  @@index([userId])
+  @@index([token])
+}
+
+// Query model
+model Query {
+  id        Int      @id @default(autoincrement())
+  question  String
+  answer    String?
+  userId    Int
+  createdAt DateTime @default(now())
+
+  @@map("queries")
+}
+
+// Feature model - The 7 learning features
+model Feature {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  icon        String
+  cost        Int      // Credits required to use this feature
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  topics      Topic[]
+  sessions    Session[]
+
+  @@map("features")
+}
+
+// Topic model - Topics configured by admin for each feature
+model Topic {
+  id          Int      @id @default(autoincrement())
+  featureId   Int
+  title       String
+  description String?
+  content     String?  // Additional content or configuration
+  isActive    Boolean  @default(true)
+  order       Int      @default(0) // Display order
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  feature     Feature  @relation(fields: [featureId], references: [id], onDelete: Cascade)
+  sessions    Session[]
+
+  @@map("topics")
+  @@index([featureId])
+}
+
+// Session model - User's learning sessions
+model Session {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  featureId   Int
+  topicId     Int?
+  creditsUsed Int
+  status      String   @default("active") // active, completed, cancelled
+  startedAt   DateTime @default(now())
+  completedAt DateTime?
+
+  feature     Feature  @relation(fields: [featureId], references: [id])
+  topic       Topic?   @relation(fields: [topicId], references: [id])
+
+  @@map("sessions")
+  @@index([userId])
+  @@index([featureId])
+  @@index([topicId])
+}
+
+// User Credits model
+model UserCredit {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  balance   Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("user_credits")
+}

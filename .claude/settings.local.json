@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm init:*)",
+      "Bash(npm install:*)",
+      "Bash(npx react-native@latest init:*)",
+      "Bash(ren frontend frontend-mobile)",
+      "Bash(npx prisma init)",
+      "WebFetch(domain:curio.mediko.id)",
+      "Bash(npm run dev:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(nul)",
+      "Bash(npx prisma generate:*)",
+      "Bash(cat:*)",
+      "Bash(prisma.config.ts)",
+      "Bash(npm run db:generate:*)",
+      "Bash(npm run db:migrate:dev:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
